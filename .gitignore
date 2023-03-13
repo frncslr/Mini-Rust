@@ -1,1 +1,4 @@
-_build
+_build/
+demo/
+.merlin
+mini-java

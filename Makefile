@@ -1,5 +1,8 @@
-all: lexer.ml parser.ml type.ml ast.ml env.ml check_singleton_variable.ml substitution.ml unification.ml eval.ml main.ml
-	ocamlbuild main.native
+all:
+	ocamlbuild -pkgs unix -use-menhir -menhir "menhir --explain --dump" main.native
+	mv main.native mini-java
+	cd tgc && $(MAKE)
 
 clean:
 	ocamlbuild -clean
+	rm -f mini-java
