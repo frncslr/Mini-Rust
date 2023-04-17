@@ -40,7 +40,7 @@ let rec expr0 out = function
      fprintf out "%a" constant c
   | EGetVar x ->
      fprintf out "%s" x
-  | EThis ->
+  | ESelf ->
      fprintf out "this"
   | EMethodCall (o, c, es) ->
      fprintf out "%a.%s(%a)"
@@ -161,8 +161,8 @@ let binding out (x, t) =
     typ t
     x
 
-(** [metho out (name, m)] prints the method [name] with type [MJ.metho m] on the output channel [out]. *)
-let metho out (name, m) =
+(** [functio out (name, m)] prints the method [name] with type [MJ.functio m] on the output channel [out]. *)
+let functio out (name, m) =
   fprintf out "public %a %s(%a) {%a%a%t%t}"
     typ m.result
     name
@@ -180,7 +180,7 @@ let clas out (name, c) =
    | Some class_name ->
       fprintf out "class %s extends %s {%a%a%t}" name class_name)
     (term_list semicolon (indent indentation binding)) c.attributes
-    (list (indent indentation metho)) c.methods
+    (list (indent indentation functio)) c.methods
     nl
 
 let print_program out (p : MJ.program) : unit =

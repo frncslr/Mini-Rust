@@ -6,13 +6,14 @@
 %token <int32> INT_CONST
 %token <bool> BOOL_CONST
 %token INTEGER BOOLEAN
+%token LET MUT ADDR
 %token <string Location.t> IDENT
-%token CLASS PUBLIC STATIC VOID MAIN STRING EXTENDS RETURN
+%token FUNC MAIN RETURN
 %token PLUS MINUS TIMES NOT LT AND
-%token COMMA SEMICOLON
-%token ASSIGN
+%token COMMA SEMICOLON COLON
+%token ASSIGN RET_TYPE
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
-%token THIS NEW DOT LENGTH
+%token SELF NEW DOT
 %token SYSO
 %token IF ELSE WHILE
 %token EOF
@@ -31,51 +32,33 @@
 %%
 
 program:
-| m = main_class d = defs EOF
+| m = main_function d = defs EOF
    {
-     let c, a, i = m in
+     let c, i = m in
      {
        name = c;
        defs = d;
-       main_args = a;
        main = i
      }
    }
 
-main_class:
-| CLASS c = IDENT
-   LBRACE
-   PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET a = IDENT RPAREN
+main_function:
+| FUNC c = MAIN LPAREN RPAREN
    LBRACE
    i = instruction
    RBRACE
-   RBRACE
-   { (c, a, i) }
+   { (c, i) }
 
 defs:
-| c = list(clas)
+| c = list(functio)
    { c }
 
-clas:
-| CLASS name = IDENT e = option(preceded(EXTENDS, IDENT))
-   LBRACE
-   a = list(pair(typ, terminated(IDENT, SEMICOLON)))
-   m = list(metho)
-   RBRACE
-   {
-     name,
-     {
-       extends = e;
-       attributes = swap a;
-       methods = m;
-     }
-   }
-
-metho:
-| PUBLIC t = typ name = IDENT
+functio:
+| FUNC name = IDENT
    LPAREN
-   f = separated_list(COMMA, pair(typ, IDENT))
+   f = separated_list(COMMA, pair(IDENT, pair(COLON, typ)))
    RPAREN
+   RET_TYPE t = typ
    LBRACE
    ds = declarations_and_statements
    RETURN e = expression SEMICOLON
@@ -93,7 +76,7 @@ metho:
    }
 
 declarations_and_statements:
-| t = typ id = IDENT SEMICOLON r = declarations_and_statements
+| LET id = IDENT COLON t = typ SEMICOLON r = declarations_and_statements
    {
      let d, s = r in
      ((id, t) :: d, s)
@@ -120,23 +103,23 @@ raw_expression:
 | e1 = expression op = binop e2 = expression
    { EBinOp (op, e1, e2) }
 
-| o = expression DOT c = IDENT LPAREN actuals = separated_list(COMMA, expression) RPAREN
-   { EMethodCall (o, c, actuals) }
+// | o = expression DOT c = IDENT LPAREN actuals = separated_list(COMMA, expression) RPAREN
+//    { EMethodCall (o, c, actuals) }
 
-| a = expression LBRACKET i = expression RBRACKET
-   { EArrayGet (a, i) }
+// | a = expression LBRACKET i = expression RBRACKET
+//    { EArrayGet (a, i) }
 
-| NEW INTEGER LBRACKET e = expression RBRACKET
-   { EArrayAlloc e }
+// | NEW INTEGER LBRACKET e = expression RBRACKET
+//    { EArrayAlloc e }
 
-| a = expression DOT LENGTH
-   { EArrayLength a }
+// | a = expression DOT LENGTH
+//    { EArrayLength a }
 
-| THIS
-   { EThis }
+// | SELF
+//    { ESelf }
 
-| NEW id = IDENT LPAREN RPAREN
-   { EObjectAlloc id }
+// | NEW id = IDENT LPAREN RPAREN
+//    { EObjectAlloc id }
 
 | NOT e = expression
    { EUnOp (UOpNot, e) }
@@ -155,8 +138,8 @@ instruction:
 | id = IDENT ASSIGN e = expression SEMICOLON
    { ISetVar (id, e) }
 
-| a = IDENT LBRACKET i = expression RBRACKET ASSIGN e = expression SEMICOLON
-   { IArraySet (a, i, e) }
+// | a = IDENT LBRACKET i = expression RBRACKET ASSIGN e = expression SEMICOLON
+//    { IArraySet (a, i, e) }
 
 | SYSO LPAREN e = expression RPAREN SEMICOLON
    { ISyso e }

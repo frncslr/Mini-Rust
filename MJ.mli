@@ -12,7 +12,7 @@ type expression =
   | EArrayGet of expression * expression
   | EArrayAlloc of expression
   | EArrayLength of expression
-  | EThis
+  | ESelf
   | EObjectAlloc of identifier
 
 and constant = LMJ.constant =
@@ -42,7 +42,7 @@ and typ =
   | TypIntArray
   | Typ of identifier
 
-and metho = {
+and functio = {
     formals: (identifier * typ) list;
     result: typ;
     locals: (identifier * typ) list;
@@ -53,7 +53,7 @@ and metho = {
 and clas = {
     extends: identifier option;
     attributes: (identifier * typ) list;
-    methods: (identifier * metho) list
+    methods: (identifier * functio) list
   }
 
 and program = {

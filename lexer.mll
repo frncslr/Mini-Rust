@@ -24,6 +24,7 @@ rule get_token = parse
   | "//" [^ '\n']* '\n'
   | '\n'      { newline lexbuf; get_token lexbuf }
   | space+    { get_token lexbuf }
+  | '->'      { RET_TYPE }
   | "/*"      { comment lexbuf }
   | '+'       { PLUS }
   | '-'       { MINUS }
@@ -38,26 +39,23 @@ rule get_token = parse
   | '}'       { RBRACE }
   | '.'       { DOT }
   | ';'       { SEMICOLON }
+  | ':'       { COLON }
   | '='       { ASSIGN }
   | ","       { COMMA }
+  | "&"       { ADDR }
   | "true"    { BOOL_CONST true }
   | "false"   { BOOL_CONST false }
-  | "int"     { INTEGER }
-  | "boolean" { BOOLEAN }
-  | "!"       { NOT }
-  | ","       { COMMA }
-  | "class"   { CLASS }
-  | "public"  { PUBLIC }
-  | "static"  { STATIC }
-  | "void"    { VOID }
+  | "i32"     { INTEGER }
+  | "bool"    { BOOLEAN }
+  | "fn"      { FUNC }
+  | "let"     { LET }
+  | "mut"     { MUT }
   | "main"    { MAIN }
   | "return"  { RETURN }
-  | "String"  { STRING }
-  | "extends" { EXTENDS }
   | "new"     { NEW }
-  | "this"    { THIS }
-  | "length"  { LENGTH }
-  | "System.out.println" { SYSO }
+  | "self"    { SELF }
+  | "print!"  { SYSO }
+  | "!"       { NOT }
   | "if"    { IF }
   | "else"  { ELSE }
   | "while" { WHILE }

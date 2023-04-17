@@ -1,34 +1,31 @@
-Program ::= MainClass ClassDeclaration* 'eof'
+Program ::= MainFunction FunctionDeclaration* 'eof'
 
-MainClass ::= 'class' Identifier '{' 'public' 'static' 'void' 'main' "(" 'String' '[' ']' Identifier ')' '{' Statement '}' '}'
+MainFunction ::= 'fn' 'main' '(' ')' '{' Statement '}'
 
-ClassDeclaration ::= 'class' Identifier ( 'extends' Identifier )? '{' VarDeclaration* MethodDeclaration* '}'
+VarDeclaration ::= 'let' 'mut' Identifier ':' Type ';'
 
-VarDeclaration ::= Type Identifier ';'
+MethodDeclaration ::= 'fn' Identifier '(' ( Identifier ':' Type ( ',' Identifier ':' Type )* )? ')' '->' Type '{' VarDeclaration* Statement* 'return' Expression ';' '}'
 
-MethodDeclaration ::= 'public' Type Identifier '(' ( Type Identifier ( ',' Type Identifier )* )? ')' '{' VarDeclaration* Statement* 'return' Expression ';' '}'
-
-Type ::= 'int' '[' ']'
+Type ::= '[' 'i32' ',' 'i32' ']'
         | 'boolean'
-        | 'int'
+        | 'i32'
         |  Identifier
 
 Statement ::= '{' Statement* '}'
         | 'if' '(' Expression ')' Statement 'else' Statement
         | 'while' '(' Expression ')' Statement
-        | 'System.out.println' '(' Expression ')' ';'
+        | 'print!' '(' Expression ')' ';'
         | Identifier '=' Expression ';'
         | Identifier '[' Expression ']' '=' Expression ';'
 
 Expression ::= Expression ( '&&' | '<' | '+' | '-' | '*' ) Expression
         | Expression '[' Expression ']'
-        | Expression '.' 'length'
         | Expression '.' Identifier '(' ( Expression ( ',' Expression )* )? ')'
         | Integer
         | 'true'
         | 'false'
         | Identifier
-        | 'this'
+        | 'self'
         | 'new' 'int' '[' Expression ']'
         | 'new' Identifier '(' ')'
         | '!' Expression

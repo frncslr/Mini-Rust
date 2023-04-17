@@ -35,7 +35,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EArrayGet</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.expression&nbsp;*&nbsp;<span class="constructor">LMJ</span>.expression<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EArrayAlloc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.expression<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EArrayLength</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.expression<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EThis</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ESelf</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EObjectAlloc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.identifier<br>
 &nbsp;&nbsp;<span class="keyword">and</span>&nbsp;constant&nbsp;=&nbsp;<span class="constructor">ConstBool</span>&nbsp;<span class="keyword">of</span>&nbsp;bool&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ConstInt</span>&nbsp;<span class="keyword">of</span>&nbsp;int32<br>
 &nbsp;&nbsp;<span class="keyword">and</span>&nbsp;binop&nbsp;=&nbsp;<span class="constructor">OpAdd</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">OpSub</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">OpMul</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">OpLt</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">OpAnd</span><br>
@@ -48,7 +48,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ISetVar</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.expression<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">IArraySet</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.expression&nbsp;*&nbsp;<span class="constructor">LMJ</span>.expression<br>
 &nbsp;&nbsp;<span class="keyword">and</span>&nbsp;typ&nbsp;=&nbsp;<span class="constructor">TypInt</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">TypBool</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">TypIntArray</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Typ</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">LMJ</span>.identifier<br>
-&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;metho&nbsp;=&nbsp;{<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;functio&nbsp;=&nbsp;{<br>
 &nbsp;&nbsp;&nbsp;&nbsp;formals&nbsp;:&nbsp;(<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.typ)&nbsp;list;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;:&nbsp;<span class="constructor">LMJ</span>.typ;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;locals&nbsp;:&nbsp;(<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.typ)&nbsp;list;<br>
@@ -58,7 +58,7 @@
 &nbsp;&nbsp;<span class="keyword">and</span>&nbsp;clas&nbsp;=&nbsp;{<br>
 &nbsp;&nbsp;&nbsp;&nbsp;extends&nbsp;:&nbsp;<span class="constructor">LMJ</span>.identifier&nbsp;option;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;attributes&nbsp;:&nbsp;(<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.typ)&nbsp;list;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;methods&nbsp;:&nbsp;(<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.metho)&nbsp;list;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;methods&nbsp;:&nbsp;(<span class="constructor">LMJ</span>.identifier&nbsp;*&nbsp;<span class="constructor">LMJ</span>.functio)&nbsp;list;<br>
 &nbsp;&nbsp;}<br>
 &nbsp;&nbsp;<span class="keyword">and</span>&nbsp;program&nbsp;=&nbsp;{<br>
 &nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;:&nbsp;<span class="constructor">LMJ</span>.identifier;<br>

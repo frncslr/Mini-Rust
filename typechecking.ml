@@ -167,7 +167,7 @@ and typecheck_expression (cenv : class_env) (venv : variable_env) (vinit : S.t)
     typecheck_expression_expecting cenv venv vinit instanceof TypIntArray earray;
     TypInt
 
-  | EThis ->
+  | ESelf ->
      vlookup (Location.make (Location.startpos e) (Location.endpos e) "this") venv
 
   | EObjectAlloc id ->
@@ -246,7 +246,7 @@ let method_map (decls : (identifier * method_type) list) : method_env =
     and the [instanceof] function, that the method [m] is well typed. *)
 let typecheck_method (cenv : class_env) (venv : variable_env)
     (instanceof : identifier -> identifier -> bool)
-    (m : metho) : unit =
+    (m : functio) : unit =
 
   let formals = m.formals
   and locals = m.locals in
@@ -290,7 +290,7 @@ let typecheck_class (cenv : class_env) (instanceof : identifier -> identifier ->
   List.iter (typecheck_method cenv venv instanceof) (List.map snd c.methods)
 
 (** [extract_method_type m] creates a [method_type] from the method [m]. *)
-let extract_method_type (m : metho) : method_type =
+let extract_method_type (m : functio) : method_type =
   (List.map snd m.formals, m.result)
 
 (** [extract_class_type c] creates a [class_type] from the class [c]. *)
@@ -334,7 +334,7 @@ let add_method
       (cmap : clas SM.t)
       (instanceof : identifier -> identifier -> bool)
     : clas SM.t =
-  let test_compatible_signature ((name, m) : identifier * metho) ((name', m') : identifier * metho) : unit =
+  let test_compatible_signature ((name, m) : identifier * functio) ((name', m') : identifier * functio) : unit =
     let typecheck_params (typ : typ) (typ' : typ) : unit =
       if not (compatible typ typ'
                 (fun t1 t2 -> Location.content t1 = Location.content t2))

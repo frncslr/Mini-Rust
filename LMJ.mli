@@ -19,7 +19,7 @@ and raw_expression =
   | EArrayGet of expression * expression (** [EArrayGet (e1, e2)] represents the expression [e1[e2]]. *)
   | EArrayAlloc of expression (** [EArrayAlloc e] represents the expression [new int[e]]. *)
   | EArrayLength of expression (** [EArrayLength e] represents the expression [e.length]. *)
-  | EThis (** [EThis] represents the expression [this]. *)
+  | ESelf (** [ESelf] represents the expression [this]. *)
   | EObjectAlloc of identifier (** [EObjectAlloc id] represents the expression [new id()]. *)
 
 and constant =
@@ -49,7 +49,7 @@ and typ =
   | TypIntArray (** Type [int[]]. *)
   | Typ of identifier (** A class type. *)
 
-and metho = {
+and functio = {
   formals: (identifier * typ) list; (** The names of the parameters of the method with their types. *)
   result: typ; (** Result type of the method. *)
   locals: (identifier * typ) list; (** The names of the local variables with their types (declared at the beginning of the method). *)
@@ -57,16 +57,16 @@ and metho = {
   return: expression (** The return expression. *)
 }
 
-and clas = {
+(* and clas = {
   extends: identifier option; (** The parent class if any. *)
   attributes: (identifier * typ) list; (** The names of the attributes of the class with their types. *)
-  methods: (identifier * metho) list (** The names of the methods of the class with their types. *)
-}
+  methods: (identifier * functio) list (** The names of the methods of the class with their types. *)
+} *)
 
 and program = {
-  name: identifier; (** The name of the main class. *)
-  defs: (identifier * clas) list; (** The names and definitions of the other classes. *)
-  main_args: identifier; (** The name of the parameter of the main method in the main class. *)
-  main: instruction (** In MiniJava the main has only one instruction (but you can use
+  name: identifier; (** The name of the main function. *)
+  defs: (identifier * clas) list; (** The names and definitions of the other functions. *)
+  main_args: identifier; (** The name of the parameter of the main method in the main functions. *)
+  main: instruction (** In MiniRust the main has only one instruction (but you can use
                         a block if you want more than one). *)
 }

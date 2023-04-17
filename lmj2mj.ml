@@ -11,7 +11,7 @@ and translate_raw_expression = function
 | LMJ.EArrayGet (a, i) -> MJ.EArrayGet (translate_expression a, translate_expression i)
 | LMJ.EArrayAlloc e -> MJ.EArrayAlloc (translate_expression e)
 | LMJ.EArrayLength e -> MJ.EArrayLength (translate_expression e)
-| LMJ.EThis -> MJ.EThis
+| LMJ.ESelf -> MJ.ESelf
 | LMJ.EObjectAlloc id -> MJ.EObjectAlloc (Location.content id)
 
 and translate_instruction = function

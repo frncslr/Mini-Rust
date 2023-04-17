@@ -155,8 +155,8 @@ and print_raw_expression prefix out e pos =
        prefix'
        branch_end
        (print_expression prefix') e
-  | EThis ->
-     fprintf out "EThis%a" print_position pos
+  | ESelf ->
+     fprintf out "ESelf%a" print_position pos
   | EObjectAlloc id ->
      fprintf out "EObjectAlloc %a" print_identifier id
 

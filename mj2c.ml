@@ -114,13 +114,13 @@ module ClassInfo : ClassInfoType = struct
       public int m3() { return 4; }
     }
    [method_info] is the following map for class B:
-     "m1" --> ("B", 0, MJ.metho for m1)
-     "m2" --> ("A", 1, MJ.metho for m2)
-     "m3" --> ("B", 2, MJ.metho for m3)
+     "m1" --> ("B", 0, MJ.functio for m1)
+     "m2" --> ("A", 1, MJ.functio for m2)
+     "m3" --> ("B", 2, MJ.functio for m3)
    The first element of the triple is the class origin of the method,
    the second element is the virtual table index and
-   the third element is the [MJ.metho] type for the method. *)
-  type method_info = (string * int * MJ.metho) SM.t
+   the third element is the [MJ.functio] type for the method. *)
+  type method_info = (string * int * MJ.functio) SM.t
 
   type t = {
       class_name : string;
@@ -203,10 +203,10 @@ module ClassInfo : ClassInfoType = struct
   (** [find_variable_type m v class_info] gets the type of a variable [v] (formal parameter or local variable)
       for the method [m] in [class_info]. If the variable doesn't exist, raises [Not_found]. *)
   let find_variable_type m v class_info =
-    let _, _, metho = SM.find m class_info.method_info in
-    match List.assoc_opt v metho.formals with
+    let _, _, functio = SM.find m class_info.method_info in
+    match List.assoc_opt v functio.formals with
     | Some t -> t
-    | None -> List.assoc v metho.locals
+    | None -> List.assoc v functio.locals
 
   let is_attribute m v class_info =
     try
@@ -242,8 +242,8 @@ module ClassInfo : ClassInfoType = struct
     index
 
   let return_type m class_info =
-    let _, _, metho = SM.find m class_info.method_info in
-    metho.result
+    let _, _, functio = SM.find m class_info.method_info in
+    functio.result
 
   let get_methods class_info =
     SM.fold
@@ -375,7 +375,7 @@ let rec get_class
        | _ -> ""
      end
 
-  | EThis -> ClassInfo.class_name class_info
+  | ESelf -> ClassInfo.class_name class_info
 
   | EObjectAlloc id -> id
 
@@ -397,7 +397,7 @@ let expr2c
     | EGetVar v ->
        var2c method_name class_info out v
 
-    | EThis ->
+    | ESelf ->
        fprintf out "this"
 
     | EMethodCall (o, callee, args) ->
@@ -541,7 +541,7 @@ let method_declaration2c
     : unit =
   let method_declaration2c
         out
-        ((method_name, m) : string * MJ.metho)
+        ((method_name, m) : string * MJ.functio)
       : unit =
     fprintf out "void* %s_%s(struct %s* this%a);"
       class_name
@@ -616,7 +616,7 @@ let vtable_definition2c
 
 (** [all_variables p] returns the list of all the variables of program [p]. *)
 let all_variables (p : MJ.program) : string list =
-  let variables_from_method (m : MJ.metho) : string list =
+  let variables_from_method (m : MJ.functio) : string list =
     List.(map fst m.formals
           @ map fst m.locals)
   in
