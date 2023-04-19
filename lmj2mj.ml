@@ -42,7 +42,7 @@ let translate_metho m =
     MJ.return  = translate_expression m.LMJ.return
   }
 
-let translate_clas c =
+(* let translate_clas c =
   {
     MJ.extends =
       (match c.LMJ.extends with
@@ -50,12 +50,11 @@ let translate_clas c =
       | Some id -> Some (Location.content id));
     MJ.attributes = translate_bindings translate_typ c.LMJ.attributes;
     MJ.methods = translate_bindings translate_metho c.LMJ.methods
-  }
+  } *)
 
 let translate_program p =
   {
     MJ.name = Location.content p.LMJ.name;
-    MJ.defs = translate_bindings translate_clas p.LMJ.defs;
+    MJ.defs = translate_bindings translate_metho p.LMJ.defs;
     MJ.main = translate_instruction p.LMJ.main;
-    MJ.main_args = Location.content p.LMJ.main_args
   }

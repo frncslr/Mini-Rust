@@ -50,15 +50,14 @@ and functio = {
     return: expression
   }
 
-and clas = {
+(* and clas = {
     extends: identifier option;
     attributes: (identifier * typ) list;
     methods: (identifier * functio) list
-  }
+  } *)
 
 and program = {
     name: identifier;
-    defs: (identifier * clas) list;
-    main_args: identifier;
+    defs: (identifier * functio) list;
     main: instruction
   }

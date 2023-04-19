@@ -159,7 +159,7 @@ typ:
    { TypInt }
 | BOOLEAN
    { TypBool }
-| INTEGER LBRACKET RBRACKET
-   { TypIntArray }
+// | LBRACKET typ COMMA INTEGER RBRACKET
+//    { TypIntArray }
 | id = IDENT
    { Typ id }
