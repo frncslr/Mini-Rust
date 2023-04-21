@@ -54,7 +54,6 @@ let translate_metho m =
 
 let translate_program p =
   {
-    MJ.name = Location.content p.LMJ.name;
     MJ.defs = translate_bindings translate_metho p.LMJ.defs;
     MJ.main = translate_instruction p.LMJ.main;
   }

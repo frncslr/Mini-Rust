@@ -280,49 +280,18 @@ let print_identifier_method_list prefix out l =
   in
   print_list print_identifier_method prefix out l
 
-(** [print_class prefix out c] prints the class [c] on the output channel [out].
-     [prefix] is the string already printed just before [c]. *)
-let rec print_class prefix out c =
-  fprintf out "extends ";
-  (match c.extends with
-     | None -> ()
-     | Some id -> print_identifier out id);
-  fprintf out "\n%s%sattributes %a\n%s%smethods\n%a"
-    prefix
-    branch
-    print_declaration_list c.attributes
-    prefix
-    branch_end
-    (print_identifier_method_list (prefix ^ " ")) c.methods
-
-(** [print_identifier_class_list prefix out l] prints the list of classes with their names [l] on the output channel [out].
-    [prefix] is the current prefix string, but currently the position in the output channel [out] is
-    at the beginning of a line (the prefix string is not already printed). *)
-and print_identifier_class_list prefix out l =
-  let print_identifier_class prefix out (id, c) =
-    let prefix' = prefix ^ String.make indentation ' ' in
-    fprintf out "%a\n%s%s%a"
-      print_identifier id
-      prefix'
-      branch
-      (print_class prefix') c
-  in
-  print_list print_identifier_class prefix out l
-
 let print out p show_loc =
   show_location := show_loc;
   let prefix = String.make indentation ' ' in
-  fprintf out "program\n%s%sname %a\n%s%sdefs\n%a%s%s%smain_args %a\n%s%smain\n%a\n"
+  fprintf out "program\n%s%s\n%s%sdefs\n%a%s%s%s\n%s%smain\n%a\n"
     prefix
     branch
-    print_identifier p.name
     prefix
     branch
-    (print_identifier_class_list (prefix ^ pipe)) p.defs
+    (print_identifier_method_list (prefix ^ pipe)) p.defs
     (if p.defs = [] then "" else "\n")
     prefix
     branch
-    print_identifier p.main_args
     prefix
     branch_end
     (print_instruction_list (prefix ^ " ")) [p.main]

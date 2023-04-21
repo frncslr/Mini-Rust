@@ -57,7 +57,6 @@ and functio = {
   } *)
 
 and program = {
-    name: identifier;
     defs: (identifier * functio) list;
     main: instruction
   }

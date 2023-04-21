@@ -24,7 +24,7 @@ rule get_token = parse
   | "//" [^ '\n']* '\n'
   | '\n'      { newline lexbuf; get_token lexbuf }
   | space+    { get_token lexbuf }
-  | '->'      { RET_TYPE }
+  | "->"      { RET_TYPE }
   | "/*"      { comment lexbuf }
   | '+'       { PLUS }
   | '-'       { MINUS }

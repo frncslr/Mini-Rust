@@ -170,84 +170,32 @@ let decl2c
 
 (** [method_declaration2c out (name, c)] transpiles all the declarations of the methods of the class [name] with type [c]
     to C on the output channel [out]. *)
+
 let method_declaration2c
       out
-      ((class_name, clas) : string * MJ.clas)
+      ((method_name, m) : string * MJ.functio)
     : unit =
-  let method_declaration2c
-        out
-        ((method_name, m) : string * MJ.functio)
-      : unit =
-    fprintf out "void* %s_%s(struct %s* this%a);"
-      class_name
-      method_name
-      class_name
-      (prec_list comma decl2c)
-      m.formals
-  in
-  fprintf out "%a"
-    (sep_list nl method_declaration2c)
-    clas.methods
-
-(** [class_definition2c out (name, c)] defines the C structure representing the class [name] with type [c] on the output channel [out]. *)
-let class_definition2c
-      out
-      ((class_name, clas) : string * MJ.clas)
-    : unit =
-  let field_names =
-    get_class_info class_name
-    |> ClassInfo.get_attributes
-  in
-  let field2c
-        out
-        ((name, t) : string * MJ.typ)
-      : unit =
-    fprintf out "%a %s"
-      type2c t
-      name
-  in
-  fprintf out "struct %s {%t%a\n};"
-    class_name
-    (indent_t indentation (fun out -> fprintf out "void* (**vtable)();"))
-    (term_list semicolon (indent indentation field2c)) field_names
+  fprintf out "void* %s(%a);"
+    method_name
+    (prec_list comma decl2c)
+    m.formals
+  
 
 (** [method_definition2c out (name, c)] transpiles all the definitions of the methods of the class [name] with type [c]
     to C on the output channel [out]. *)
-let method_definition2c
-      out
-      ((class_name, clas) : string * MJ.clas)
-    : unit =
-  let class_info = get_class_info class_name in
-  let method_definition out (method_name, m) =
-    let return2c out e =
-      fprintf out "return (void*)(%a);"
-        (expr2c method_name class_info) e
-    in
-    fprintf out "void* %s_%s(struct %s* this%a) {%a%a%a\n}"
-      class_name
-      method_name
-      class_name
-      (prec_list comma decl2c) m.formals
-      (term_list semicolon (indent indentation decl2c))
-      m.locals
-      (list (indent indentation (instr2c method_name class_info))) m.body
-      (indent indentation return2c) m.return
+let method_definition2c out ((method_name, m) : string * MJ.functio) =
+  let return2c out e =
+    fprintf out "return (void*)(%a);"
+      (expr2c method_name) e
   in
-  fprintf out "%a"
-    (sep_list nl method_definition)
-    clas.methods
+  fprintf out "void* %s(%a) {%a%a%a\n}"
+    method_name
+    (prec_list comma decl2c) m.formals
+    (term_list semicolon (indent indentation decl2c))
+    m.locals
+    (list (indent indentation (instr2c method_name))) m.body
+    (indent indentation return2c) m.return
 
-(** [vtable_definition2c out c] creates the virtual tables for all the methods of class [c]
-    on the output channel [out]. *)
-let vtable_definition2c
-      out
-      class_name
-    : unit =
-  let class_info = get_class_info class_name in
-  fprintf out "void* (*%s_vtable[])() = { %a };"
-    class_name
-    (sep_list comma print_string)
-    (ClassInfo.get_methods class_info)
 
 (** [all_variables p] returns the list of all the variables of program [p]. *)
 let all_variables (p : MJ.program) : string list =
@@ -255,18 +203,13 @@ let all_variables (p : MJ.program) : string list =
     List.(map fst m.formals
           @ map fst m.locals)
   in
-  p.main_args ::
     List.(map
-            (fun (_, clas) ->
-              map fst clas.attributes
-              @ (map snd clas.methods
-                 |> map variables_from_method
-                 |> flatten))
+            (fun (_, functio) ->
+              variables_from_method functio)
             p.defs
           |> flatten)
 
 let program2c out (p : MJ.program) : unit =
-  init_class_infos p;
   let all_func_names =
     List.map fst p.defs
   in
@@ -283,44 +226,32 @@ let program2c out (p : MJ.program) : unit =
   fprintf out
     "#include <stdio.h>\n\
      #include <stdlib.h>\n\
-     #include \"tgc.h\"\n\
+     // #include \"tgc.h\"\n\
      #pragma GCC diagnostic ignored \"-Wpointer-to-int-cast\"\n\
      #pragma GCC diagnostic ignored \"-Wint-to-pointer-cast\"\n\
      struct %s { int* array; int length; };\n\
-     tgc_t gc;\n\
-     %a\
-     %a\
-     %a\
+     // tgc_t gc;\n\
      %a\
      %a\
      int main(int argc, char *argv[]) {\
-     %a\
-     %a\
      %a\n\
      %a\n\
      }\n"
     !struct_array_name
 
-    (term_list nl class_declaration2c)
-    all_func_names
-
     (term_list nl method_declaration2c)
-    (List.filter (fun (_, c) -> c.methods <> []) p.defs)
-
-    (term_list nl class_definition2c)
     p.defs
 
-    (term_list nl vtable_definition2c)
-    all_func_names
-
     (term_list nl method_definition2c)
-    (List.filter (fun (_, c) -> c.methods <> []) p.defs)
+    p.defs
 
-    (indent indentation print_string) "tgc_start(&gc, &argc);"
+    (* MAIN  *)
 
-    (indent indentation (instr2c "main" (get_class_info p.name)))
+    (* (indent indentation print_string) "tgc_start(&gc, &argc);" *)
+
+    (indent indentation (instr2c "main"))
     p.main
 
-    (indent indentation print_string) "tgc_stop(&gc);"
+    (* (indent indentation print_string) "tgc_stop(&gc);" *)
 
     (indent indentation print_string) "return 0;"

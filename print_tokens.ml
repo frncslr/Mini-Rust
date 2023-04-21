@@ -26,20 +26,16 @@ let print_token show_loc out = function
        fprintf out "IDENT %s%s%s %s line %d, char %d %s" lquote (Location.content id) rquote rtriangle l c ltriangle
      else
        fprintf out "IDENT %s%s%s" lquote (Location.content id) rquote
-  | CLASS ->
-     fprintf out "CLASS"
-  | PUBLIC ->
-     fprintf out "PUBLIC"
-  | STATIC ->
-     fprintf out "STATIC"
-  | VOID ->
-     fprintf out "VOID"
+  | LET ->
+     fprintf out "LET"
+  | MUT ->
+     fprintf out "MUT"
+  | ADDR ->
+     fprintf out "ADDR"
+  | FUNC ->
+     fprintf out "FUNC"
   | MAIN ->
      fprintf out "MAIN"
-  | STRING ->
-     fprintf out "STRING"
-  | EXTENDS ->
-     fprintf out "EXTENDS"
   | RETURN ->
      fprintf out "RETURN"
   | PLUS ->
@@ -58,8 +54,12 @@ let print_token show_loc out = function
      fprintf out "COMMA"
   | SEMICOLON ->
      fprintf out "SEMICOLON"
+  | COLON ->
+     fprintf out "COLON"
   | ASSIGN ->
      fprintf out "ASSIGN"
+  | RET_TYPE ->
+     fprintf out "RET_TYPE"
   | LPAREN ->
      fprintf out "LPAREN"
   | RPAREN ->
@@ -72,14 +72,12 @@ let print_token show_loc out = function
      fprintf out "LBRACE"
   | RBRACE ->
      fprintf out "RBRACE"
-  | THIS ->
-     fprintf out "THIS"
+  | SELF ->
+     fprintf out "SELF"
   | NEW ->
      fprintf out "NEW"
   | DOT ->
      fprintf out "DOT"
-  | LENGTH ->
-     fprintf out "LENGTH"
   | SYSO ->
      fprintf out "SYSO"
   | IF ->

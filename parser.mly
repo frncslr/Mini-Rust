@@ -34,20 +34,19 @@
 program:
 | m = main_function d = defs EOF
    {
-     let c, i = m in
-     {
-       name = c;
-       defs = d;
-       main = i
-     }
+      let i=m in
+      {
+         defs = d;
+         main = m;
+      }
    }
 
 main_function:
-| FUNC c = MAIN LPAREN RPAREN
+| FUNC MAIN LPAREN RPAREN
    LBRACE
    i = instruction
    RBRACE
-   { (c, i) }
+   { i }
 
 defs:
 | c = list(functio)
@@ -56,7 +55,7 @@ defs:
 functio:
 | FUNC name = IDENT
    LPAREN
-   f = separated_list(COMMA, pair(IDENT, pair(COLON, typ)))
+   f = separated_list(COMMA, separated_pair(IDENT, COLON, typ))
    RPAREN
    RET_TYPE t = typ
    LBRACE
@@ -67,7 +66,7 @@ functio:
      let d, s = fst ds, snd ds in
      name,
      {
-       formals = swap f;
+       formals = f;
        result  = t;
        locals  = d;
        body    = s;

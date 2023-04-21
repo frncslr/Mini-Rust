@@ -64,7 +64,6 @@ and functio = {
 } *)
 
 and program = {
-  name: identifier; (** The name of the main function. *)
   defs: (identifier * functio) list; (** The names and definitions of the other functions. *)
   main: instruction (** In MiniRust the main has only one instruction (but you can use
                         a block if you want more than one). *)

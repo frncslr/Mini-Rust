@@ -163,17 +163,17 @@ let binding out (x, t) =
 
 (** [functio out (name, m)] prints the method [name] with type [MJ.functio m] on the output channel [out]. *)
 let functio out (name, m) =
-  fprintf out "public %a %s(%a) {%a%a%t%t}"
-    typ m.result
+  fprintf out "fn %s(%a) -> %a {%a%a%t%t}"
     name
     (sep_list comma binding) m.formals
+    typ m.result
     (term_list semicolon (indent indentation binding)) m.locals
     (list (indent indentation instr)) m.body
     (indent_t indentation (fun out -> fprintf out "return %a;" expr m.return))
     nl
 
 (** [clas out (name, c)] prints the clas [name] with type [MJ.clas c] on the output channel [out]. *)
-let clas out (name, c) =
+(* let clas out (name, c) =
   (match c.extends with
    | None ->
       fprintf out "class %s {%a%a%t}" name
@@ -181,17 +181,15 @@ let clas out (name, c) =
       fprintf out "class %s extends %s {%a%a%t}" name class_name)
     (term_list semicolon (indent indentation binding)) c.attributes
     (list (indent indentation functio)) c.methods
-    nl
+    nl *)
 
 let print_program out (p : MJ.program) : unit =
-  fprintf out "class %s {%t%t}%t%a"
-    p.name
+  fprintf out "%t%t %t%a"
     (indent_t indentation
        (fun out ->
-         fprintf out "public static void main(String[] %s) {%a%t}"
-           p.main_args
+         fprintf out "fn main() {%a%t}"
            (indent indentation instr) p.main
            nl))
     nl
     nl
-    (sep_list nl clas) p.defs
+    (sep_list nl functio) p.defs
