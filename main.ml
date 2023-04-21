@@ -13,7 +13,7 @@ let cc = ref "cc"
 
 let set_file f s = f := s
 
-let usage = "usage: mini-java file.java"
+let usage = "usage: mini-rust file.rs"
 let options =
   ["--show-tokens", Arg.Set show_tokens,
      " print all tokens and stop";
@@ -43,9 +43,9 @@ let () =
       exit 1
     end;
 
-  if not (Filename.check_suffix !ifile ".java") then
+  if not (Filename.check_suffix !ifile ".rs") then
     begin
-      Printf.fprintf stderr "filename must have .java suffix.\n";
+      Printf.fprintf stderr "filename must have .rs suffix.\n";
       Arg.usage options usage;
       exit 1
     end;
