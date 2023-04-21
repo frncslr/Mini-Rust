@@ -8,7 +8,6 @@ let show_ast = ref false
 let show_ast_with_loc = ref false
 let stop_at_typechecking = ref false
 let stop_at_parsing = ref false
-let tgc_path = ref "tgc"
 let cc = ref "cc"
 
 let set_file f s = f := s
@@ -27,8 +26,6 @@ let options =
      " parse the program and stop";
    "--stop-at-typechecking", Arg.Set stop_at_typechecking,
      " typecheck the program and stop";
-   "--tgc-path", Arg.Set_string tgc_path,
-     " path to tgc; default is ./tgc";
    "--c-compiler", Arg.Set_string cc,
      " c compiler; default is cc"
   ]
@@ -103,8 +100,8 @@ let () =
     Mj2c.program2c output mj;
     close_out output;
     match
-      Unix.system(Printf.sprintf "%s %s -o %s -I%s %s/tgc.o"
-                    !cc !ofile (Filename.chop_extension !ifile) !tgc_path !tgc_path)
+      Unix.system(Printf.sprintf "%s %s -o %s"
+                    !cc !ofile (Filename.chop_extension !ifile))
     with
     | Unix.WEXITED code -> exit code
     | _ -> exit 1

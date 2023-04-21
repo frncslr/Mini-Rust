@@ -8,6 +8,7 @@ type expression =
   | EGetVar of identifier
   | EUnOp of unop * expression
   | EBinOp of binop * expression * expression
+  | EFunctionCall of identifier * expression list
   | EMethodCall of expression * identifier * expression list
   | EArrayGet of expression * expression
   | EArrayAlloc of expression
@@ -49,12 +50,6 @@ and functio = {
     body: instruction list;
     return: expression
   }
-
-(* and clas = {
-    extends: identifier option;
-    attributes: (identifier * typ) list;
-    methods: (identifier * functio) list
-  } *)
 
 and program = {
     defs: (identifier * functio) list;

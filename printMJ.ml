@@ -47,6 +47,10 @@ let rec expr0 out = function
        expr0 o
        c
        (sep_list comma expr) es
+  | EFunctionCall (c, es) ->
+     fprintf out "%s(%a)"
+       c
+       (sep_list comma expr) es
   | EArrayGet (ea, ei) ->
      fprintf out "%a[%a]"
        expr0 ea
@@ -140,13 +144,13 @@ let rec instr out = function
        (indent indentation (sep_list nl instr)) is
        nl
   | ISyso e ->
-     fprintf out "System.out.println(%a);"
+     fprintf out "println!(\"{}\",%a);"
        expr e
 
 (** [typ out t] prints the type [t] on the output channel [out]. *)
 let typ out = function
   | TypInt ->
-     fprintf out "int"
+     fprintf out "i32"
   | TypBool ->
      fprintf out "boolean"
   | TypIntArray ->

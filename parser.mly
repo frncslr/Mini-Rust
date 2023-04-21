@@ -10,7 +10,7 @@
 %token <string Location.t> IDENT
 %token FUNC MAIN RETURN
 %token PLUS MINUS TIMES NOT LT AND
-%token COMMA SEMICOLON COLON
+%token QUOT COMMA SEMICOLON COLON
 %token ASSIGN RET_TYPE
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
 %token SELF NEW DOT
@@ -102,6 +102,9 @@ raw_expression:
 | e1 = expression op = binop e2 = expression
    { EBinOp (op, e1, e2) }
 
+| c = IDENT LPAREN actuals = separated_list(COMMA, expression) RPAREN
+   { EFunctionCall (c, actuals) }
+
 // | o = expression DOT c = IDENT LPAREN actuals = separated_list(COMMA, expression) RPAREN
 //    { EMethodCall (o, c, actuals) }
 
@@ -140,7 +143,7 @@ instruction:
 // | a = IDENT LBRACKET i = expression RBRACKET ASSIGN e = expression SEMICOLON
 //    { IArraySet (a, i, e) }
 
-| SYSO LPAREN e = expression RPAREN SEMICOLON
+| SYSO LPAREN QUOT LBRACE RBRACE QUOT COMMA e = expression RPAREN SEMICOLON
    { ISyso e }
 
 | IF LPAREN c = expression RPAREN i1 = instruction ELSE i2 = instruction

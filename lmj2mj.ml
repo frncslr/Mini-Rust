@@ -7,6 +7,7 @@ and translate_raw_expression = function
 | LMJ.EGetVar id -> MJ.EGetVar (Location.content id)
 | LMJ.EUnOp (op, e) -> MJ.EUnOp (op, translate_expression e)
 | LMJ.EBinOp (op, e1, e2) -> MJ.EBinOp (op, translate_expression e1, translate_expression e2)
+| LMJ.EFunctionCall (id, args) -> MJ.EFunctionCall (Location.content id, List.map translate_expression args)
 | LMJ.EMethodCall (o, id, args) -> MJ.EMethodCall (translate_expression o, Location.content id, List.map translate_expression args)
 | LMJ.EArrayGet (a, i) -> MJ.EArrayGet (translate_expression a, translate_expression i)
 | LMJ.EArrayAlloc e -> MJ.EArrayAlloc (translate_expression e)
@@ -41,16 +42,6 @@ let translate_metho m =
     MJ.body    = List.map translate_instruction m.LMJ.body;
     MJ.return  = translate_expression m.LMJ.return
   }
-
-(* let translate_clas c =
-  {
-    MJ.extends =
-      (match c.LMJ.extends with
-      | None -> None
-      | Some id -> Some (Location.content id));
-    MJ.attributes = translate_bindings translate_typ c.LMJ.attributes;
-    MJ.methods = translate_bindings translate_metho c.LMJ.methods
-  } *)
 
 let translate_program p =
   {

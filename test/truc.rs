@@ -1,6 +1,11 @@
 fn main() {
-    let x: i32 = 5;
-    let y: i32 = 10;
-    let z: i32 = x + y;
-    print!(z);
+    println!("{}",simple());
+}
+
+fn simple() -> i32 {
+    let x: i32;
+    let y: i32;
+    x = 5;
+    y = 10;
+    return x + y;
 }

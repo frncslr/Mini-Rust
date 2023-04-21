@@ -38,6 +38,7 @@ rule get_token = parse
   | '{'       { LBRACE }
   | '}'       { RBRACE }
   | '.'       { DOT }
+  | '\"'      { QUOT }
   | ';'       { SEMICOLON }
   | ':'       { COLON }
   | '='       { ASSIGN }
@@ -54,7 +55,7 @@ rule get_token = parse
   | "return"  { RETURN }
   | "new"     { NEW }
   | "self"    { SELF }
-  | "print!"  { SYSO }
+  | "println!"  { SYSO }
   | "!"       { NOT }
   | "if"    { IF }
   | "else"  { ELSE }

@@ -63,25 +63,28 @@ let rec type_to_string : typ -> string = function
      * the method [callee] belongs to the class [t],
      * the parameters [es] are compatibles with the types of the formal parameters.
     If [typecheck_call] succeeds, the return type of [callee] is returned. *)
-let rec typecheck_call (menv : method_env) (venv : variable_env) (vinit : S.t)
+let rec typecheck_methodcall (menv : method_env) (venv : variable_env) (vinit : S.t)
     (o : expression)
     (callee : identifier)
     (expressions : expression list) : typ =
   let o_type = typecheck_expression menv venv vinit o in
   match o_type with
   | Typ t ->
-    begin
-      let (formals : typ list), (result : typ) = mlookup callee menv in
-      try
-        List.iter2 (typecheck_expression_expecting menv venv vinit) formals expressions;
-        result
-      with Invalid_argument _ ->
-        error callee
-          (sprintf "Invalid function call, expected %d arguments, got %d"
-             (List.length formals)
-             (List.length expressions))
-    end
+    typecheck_functioncall menv venv vinit callee expressions
   | _ -> error o (sprintf "A class is expected, got %s" (type_to_string o_type))
+
+and typecheck_functioncall (menv : method_env) (venv : variable_env) (vinit : S.t)
+    (callee : identifier)
+    (expressions : expression list) : typ =
+  let (formals : typ list), (result : typ) = mlookup callee menv in
+  try
+    List.iter2 (typecheck_expression_expecting menv venv vinit) formals expressions;
+    result
+  with Invalid_argument _ ->
+    error callee
+      (sprintf "Invalid function call, expected %d arguments, got %d"
+        (List.length formals)
+        (List.length expressions))
 
 
 (** [typecheck_expression_expecting cenv venv vinit instanceof typ1 e] checks, using the
@@ -135,7 +138,10 @@ and typecheck_expression (menv : method_env) (venv : variable_env) (vinit : S.t)
       returned
 
   | EMethodCall (o, callee, expressions) ->
-     typecheck_call menv venv vinit o callee expressions
+    typecheck_methodcall menv venv vinit o callee expressions
+
+  | EFunctionCall (callee, expressions) ->
+    typecheck_functioncall menv venv vinit callee expressions
 
   | EArrayGet (earray, eindex) ->
     typecheck_expression_expecting menv venv vinit TypInt eindex;

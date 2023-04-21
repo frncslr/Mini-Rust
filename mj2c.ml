@@ -53,7 +53,7 @@ let type2c
     : unit =
   match typ with
   | TypInt -> fprintf out "int"
-  | TypBool -> fprintf out "bool"
+  | TypBool -> fprintf out "int"
   | TypIntArray -> fprintf out "struct %s*" !struct_array_name
   | Typ t -> fprintf out "struct %s*" t
 
@@ -91,10 +91,15 @@ let expr2c
 
     | ESelf ->
        fprintf out "self"
-
+       
+    | EFunctionCall (callee, args) ->
+      fprintf out "%s(%a)"
+      callee
+      (prec_list comma expr2c) args
+        
     | EMethodCall (o, callee, args) ->
       failwith "EMethodCall : not implemented yet"
-
+        
     | EArrayAlloc e ->
       failwith "EArrayAlloc : not implemented yet"
 
@@ -170,7 +175,6 @@ let decl2c
 
 (** [method_declaration2c out (name, c)] transpiles all the declarations of the methods of the class [name] with type [c]
     to C on the output channel [out]. *)
-
 let method_declaration2c
       out
       ((method_name, m) : string * MJ.functio)

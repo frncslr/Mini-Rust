@@ -131,6 +131,18 @@ and print_raw_expression prefix out e pos =
        "()"
        (if args = [] then "" else "\n")
        (print_expression_list prefix') args
+  | EFunctionCall (id, args) ->
+     fprintf out "EFunctionCall";
+     print_position out pos;
+     fprintf out "\n%s%s%a\n%s%s%s%s%a"
+       prefix'
+       branch
+       print_identifier id
+       prefix'
+       branch_end
+       "()"
+       (if args = [] then "" else "\n")
+       (print_expression_list prefix') args
   | EArrayGet (e1, e2) ->
      fprintf out "EArrayGet";
      print_position out pos;
@@ -228,7 +240,7 @@ and print_instruction_list prefix out l =
 let print_type out typ =
   match typ with
   | TypInt ->
-     fprintf out "int"
+     fprintf out "i32"
   | TypBool ->
      fprintf out "bool"
   | TypIntArray ->

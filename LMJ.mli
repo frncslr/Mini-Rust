@@ -15,6 +15,7 @@ and raw_expression =
   | EGetVar of identifier (** Get the value of a variable. *)
   | EUnOp of unop * expression (** An unary operator. *)
   | EBinOp of binop * expression * expression (** [EBinOp (op, e1, e2)] represents the expression [e1 op e2]. *)
+  | EFunctionCall of identifier * expression list (** [EMethodCall (o, id, [p1, ..., pn])] represents the call [o.id(p1, ..., pn)]. *)
   | EMethodCall of expression * identifier * expression list (** [EMethodCall (o, id, [p1, ..., pn])] represents the call [o.id(p1, ..., pn)]. *)
   | EArrayGet of expression * expression (** [EArrayGet (e1, e2)] represents the expression [e1[e2]]. *)
   | EArrayAlloc of expression (** [EArrayAlloc e] represents the expression [new int[e]]. *)
@@ -56,12 +57,6 @@ and functio = {
   body: instruction list; (** The list of instructions of the method. *)
   return: expression (** The return expression. *)
 }
-
-(* and clas = {
-  extends: identifier option; (** The parent class if any. *)
-  attributes: (identifier * typ) list; (** The names of the attributes of the class with their types. *)
-  methods: (identifier * functio) list (** The names of the methods of the class with their types. *)
-} *)
 
 and program = {
   defs: (identifier * functio) list; (** The names and definitions of the other functions. *)
