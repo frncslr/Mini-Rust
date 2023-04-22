@@ -9,12 +9,7 @@ type expression =
   | EUnOp of unop * expression
   | EBinOp of binop * expression * expression
   | EFunctionCall of identifier * expression list
-  | EMethodCall of expression * identifier * expression list
   | EArrayGet of expression * expression
-  | EArrayAlloc of expression
-  | EArrayLength of expression
-  | ESelf
-  | EObjectAlloc of identifier
 
 and constant = LMJ.constant =
   | ConstBool of bool
@@ -40,8 +35,7 @@ and instruction =
 and typ =
   | TypInt
   | TypBool
-  | TypIntArray
-  | Typ of identifier
+  | TypArray of typ * int32
 
 and functio = {
     formals: (identifier * typ) list;

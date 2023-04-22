@@ -116,21 +116,6 @@ and print_raw_expression prefix out e pos =
        prefix'
        branch_end
        (print_expression prefix') e2
-  | EMethodCall (e1, id, args) ->
-     fprintf out "EMethodCall";
-     print_position out pos;
-     fprintf out "\n%s%s%a\n%s%s%a\n%s%s%s%s%a"
-       prefix'
-       branch
-       (print_expression (prefix' ^ pipe)) e1
-       prefix'
-       branch
-       print_identifier id
-       prefix'
-       branch_end
-       "()"
-       (if args = [] then "" else "\n")
-       (print_expression_list prefix') args
   | EFunctionCall (id, args) ->
      fprintf out "EFunctionCall";
      print_position out pos;
@@ -153,24 +138,6 @@ and print_raw_expression prefix out e pos =
        prefix'
        branch_end
        (print_expression prefix') e2
-  | EArrayAlloc e ->
-     fprintf out "EArrayAlloc";
-     print_position out pos;
-     fprintf out "\n%s%s%a"
-       prefix'
-       branch_end
-       (print_expression prefix') e
-  | EArrayLength e ->
-     fprintf out "EArrayLength";
-     print_position out pos;
-     fprintf out "\n%s%s%a"
-       prefix'
-       branch_end
-       (print_expression prefix') e
-  | ESelf ->
-     fprintf out "ESelf%a" print_position pos
-  | EObjectAlloc id ->
-     fprintf out "EObjectAlloc %a" print_identifier id
 
 (** [print_expression_list prefix out l] prints the list of expressions [l] on the output channel [out].
     [prefix] is the current prefix string, but currently the position in the output channel [out] is
@@ -237,16 +204,14 @@ and print_instruction_list prefix out l =
   print_list print_instruction prefix out l
 
 (** [print_type out typ] prints the type [typ] on the output channel [out]. *)
-let print_type out typ =
+let rec print_type out typ =
   match typ with
   | TypInt ->
      fprintf out "i32"
   | TypBool ->
      fprintf out "bool"
-  | TypIntArray ->
-     fprintf out "int[]"
-  | Typ id ->
-     fprintf out "%a" print_identifier id
+  | TypArray (t,i) ->
+     fprintf out "%a[%ld]" print_type t i
 
 (** [print_declaration_list out l] prints the list of declarations [l] on the output channel [out].
     A declaration is an identifier with its type. *)

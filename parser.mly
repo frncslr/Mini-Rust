@@ -105,23 +105,8 @@ raw_expression:
 | c = IDENT LPAREN actuals = separated_list(COMMA, expression) RPAREN
    { EFunctionCall (c, actuals) }
 
-// | o = expression DOT c = IDENT LPAREN actuals = separated_list(COMMA, expression) RPAREN
-//    { EMethodCall (o, c, actuals) }
-
-// | a = expression LBRACKET i = expression RBRACKET
-//    { EArrayGet (a, i) }
-
-// | NEW INTEGER LBRACKET e = expression RBRACKET
-//    { EArrayAlloc e }
-
-// | a = expression DOT LENGTH
-//    { EArrayLength a }
-
-// | SELF
-//    { ESelf }
-
-// | NEW id = IDENT LPAREN RPAREN
-//    { EObjectAlloc id }
+| i = expression LBRACKET e = expression RBRACKET
+   { EArrayGet (i, e) }
 
 | NOT e = expression
    { EUnOp (UOpNot, e) }
@@ -140,8 +125,8 @@ instruction:
 | id = IDENT ASSIGN e = expression SEMICOLON
    { ISetVar (id, e) }
 
-// | a = IDENT LBRACKET i = expression RBRACKET ASSIGN e = expression SEMICOLON
-//    { IArraySet (a, i, e) }
+| a = IDENT LBRACKET i = expression RBRACKET ASSIGN e = expression SEMICOLON
+   { IArraySet (a, i, e) }
 
 | SYSO LPAREN QUOT LBRACE RBRACE QUOT COMMA e = expression RPAREN SEMICOLON
    { ISyso e }
@@ -161,7 +146,5 @@ typ:
    { TypInt }
 | BOOLEAN
    { TypBool }
-// | LBRACKET typ COMMA INTEGER RBRACKET
-//    { TypIntArray }
-| id = IDENT
-   { Typ id }
+| LBRACKET t = typ MUT i=INT_CONST RBRACKET
+   { TypArray (t,i) }

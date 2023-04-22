@@ -51,11 +51,13 @@ let type2c
       out
       (typ : MJ.typ)
     : unit =
-  match typ with
-  | TypInt -> fprintf out "int"
-  | TypBool -> fprintf out "int"
-  | TypIntArray -> fprintf out "struct %s*" !struct_array_name
-  | Typ t -> fprintf out "struct %s*" t
+  let rec type2c out typ = 
+    match typ with
+    | TypInt -> fprintf out "int"
+    | TypBool -> fprintf out "int"
+    | TypArray (t,i) -> fprintf out "%a[%ld]" type2c t i
+  in 
+  type2c out typ
 
 (** [cast out typ] transpiles the cast to [typ] to C on the output channel [out]. *)
 let cast
@@ -88,29 +90,16 @@ let expr2c
 
     | EGetVar v ->
        var2c method_name out v
-
-    | ESelf ->
-       fprintf out "self"
        
     | EFunctionCall (callee, args) ->
       fprintf out "%s(%a)"
       callee
       (prec_list comma expr2c) args
-        
-    | EMethodCall (o, callee, args) ->
-      failwith "EMethodCall : not implemented yet"
-        
-    | EArrayAlloc e ->
-      failwith "EArrayAlloc : not implemented yet"
-
-    | EObjectAlloc id ->
-      failwith "EObjectAlloc : not implemented yet"
 
     | EArrayGet (ea, ei) ->
-      failwith "EArrayGet : not implemented yet"
-
-    | EArrayLength e ->
-      failwith "EArrayLength : not implemented yet"
+      fprintf out "%a[%a]"
+      expr2c ea
+      expr2c ei
 
     | EUnOp (UOpNot, e) ->
        fprintf out "!(%a)"
@@ -230,11 +219,9 @@ let program2c out (p : MJ.program) : unit =
   fprintf out
     "#include <stdio.h>\n\
      #include <stdlib.h>\n\
-     // #include \"tgc.h\"\n\
      #pragma GCC diagnostic ignored \"-Wpointer-to-int-cast\"\n\
      #pragma GCC diagnostic ignored \"-Wint-to-pointer-cast\"\n\
      struct %s { int* array; int length; };\n\
-     // tgc_t gc;\n\
      %a\
      %a\
      int main(int argc, char *argv[]) {\

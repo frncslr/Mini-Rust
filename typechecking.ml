@@ -46,16 +46,15 @@ let mlookup : identifier -> method_env -> method_type = lookup "method"
 let rec compatible (typ1 : typ) (typ2 : typ) : bool =
   match typ1, typ2 with
   | TypInt, TypInt
-  | TypBool, TypBool
-  | TypIntArray, TypIntArray -> true
+  | TypBool, TypBool -> true
+  | TypArray (t1,i1), TypArray (t2,i2) -> compatible t1 t2 && i1=i2
   | _, _ -> false
 
 (** [type_to_string t] converts the type [t] into a string representation. *)
 let rec type_to_string : typ -> string = function
   | TypInt -> "i32"
   | TypBool -> "boolean"
-  | TypIntArray -> "[i32,i32]"
-  | Typ t -> Location.content t
+  | TypArray (t,i) -> Printf.sprintf "[%s,%ld]" (type_to_string t) i
 
 (** [typecheck_call cenv venv vinit instanceof o callee es] checks, using the environments [cenv] and [venv],
     the set of initialized variables [vinit] and the [instanceof] function, that
@@ -63,17 +62,7 @@ let rec type_to_string : typ -> string = function
      * the method [callee] belongs to the class [t],
      * the parameters [es] are compatibles with the types of the formal parameters.
     If [typecheck_call] succeeds, the return type of [callee] is returned. *)
-let rec typecheck_methodcall (menv : method_env) (venv : variable_env) (vinit : S.t)
-    (o : expression)
-    (callee : identifier)
-    (expressions : expression list) : typ =
-  let o_type = typecheck_expression menv venv vinit o in
-  match o_type with
-  | Typ t ->
-    typecheck_functioncall menv venv vinit callee expressions
-  | _ -> error o (sprintf "A class is expected, got %s" (type_to_string o_type))
-
-and typecheck_functioncall (menv : method_env) (venv : variable_env) (vinit : S.t)
+let rec typecheck_functioncall (menv : method_env) (venv : variable_env) (vinit : S.t)
     (callee : identifier)
     (expressions : expression list) : typ =
   let (formals : typ list), (result : typ) = mlookup callee menv in
@@ -137,31 +126,15 @@ and typecheck_expression (menv : method_env) (venv : variable_env) (vinit : S.t)
       typecheck_expression_expecting menv venv vinit expected e2;
       returned
 
-  | EMethodCall (o, callee, expressions) ->
-    typecheck_methodcall menv venv vinit o callee expressions
-
   | EFunctionCall (callee, expressions) ->
     typecheck_functioncall menv venv vinit callee expressions
 
   | EArrayGet (earray, eindex) ->
     typecheck_expression_expecting menv venv vinit TypInt eindex;
-    typecheck_expression_expecting menv venv vinit TypIntArray earray;
-    TypInt
-
-  | EArrayAlloc elength ->
-    typecheck_expression_expecting menv venv vinit TypInt elength;
-    TypIntArray
-
-  | EArrayLength earray ->
-    typecheck_expression_expecting menv venv vinit TypIntArray earray;
-    TypInt
-
-  (* | ESelf ->
-     vlookup (Location.make (Location.startpos e) (Location.endpos e) "this") venv
-
-  | EObjectAlloc id ->
-      clookup id cenv |> ignore;
-      Typ id *)
+    let expected_type = typecheck_expression menv venv vinit earray in
+    match expected_type with
+    | TypArray (t,_) -> t
+    | _ as t -> error e (sprintf "Type mismatch, expected TypArray(_), got %s" (type_to_string t))
 
 (** [typecheck_instruction cenv venv vinit instanceof inst] checks, using the environments [cenv] and
     [venv], the set of initialized variables [vinit] and the [instanceof] function,
@@ -178,10 +151,15 @@ let rec typecheck_instruction (menv : method_env) (venv : variable_env) (vinit :
      vinit
 
   | IArraySet (earray, eindex, evalue) ->
-    typecheck_expression_expecting menv venv vinit TypIntArray
-      (Location.make (Location.startpos earray) (Location.endpos earray) (EGetVar earray));
     typecheck_expression_expecting menv venv vinit TypInt eindex;
-    typecheck_expression_expecting menv venv vinit TypInt evalue;
+    let array_type = typecheck_expression menv venv vinit
+      (Location.make (Location.startpos earray) (Location.endpos earray) (EGetVar earray)) in
+    let value_type = typecheck_expression menv venv vinit evalue in
+    begin
+    match array_type,value_type with
+    | TypArray (t1,_), t2 -> if not (compatible t1 t2) then error earray (sprintf "Type mismatch, expected TypArray(_), got %s" (type_to_string t1))
+    | _ as t, _ -> error earray (sprintf "Type mismatch, expected TypArray(_), got %s" (type_to_string t))
+    end;
     vinit
 
   | IBlock instructions ->
@@ -206,7 +184,6 @@ let rec typecheck_instruction (menv : method_env) (venv : variable_env) (vinit :
     typecheck_instruction menv venv vinit ibody
 
   | ISyso e ->
-     typecheck_expression_expecting menv venv vinit TypInt e;
      vinit
 
 (** [occurences x bindings] returns the elements in [bindings] that have [x] has identifier. *)

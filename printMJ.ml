@@ -26,51 +26,31 @@ let binop out = function
   | OpAnd ->
      fprintf out "&&"
 
-(** [expr out e], [expr0 out e], ..., [expr6 out e] print the expression [e]
+(** [expr out e], [expr1 out e], ..., [expr6 out e] print the expression [e]
     on the output channel [out]. [expr] is a synonym for [expr6].
     We have different functions to minimize the number of parenthesis. An expression
     doesn't need parenthesis if the priority of its operands is greater or equal to
     its priority.
-    [expr6] handles the expressions of least priority and [expr0] handles the expressions
-    of greatest priority. It's in the default case of [expr0] that we put parenthesis, in
+    [expr6] handles the expressions of least priority and [expr1] handles the expressions
+    of greatest priority. It's in the default case of [expr1] that we put parenthesis, in
     this case, we have an expression of lower priority than the current context and so we
     have to put parenthesis around it and then call [expr] again. *)
-let rec expr0 out = function
+let rec expr1 out = function
   | EConst c ->
      fprintf out "%a" constant c
   | EGetVar x ->
      fprintf out "%s" x
-  | ESelf ->
-     fprintf out "this"
-  | EMethodCall (o, c, es) ->
-     fprintf out "%a.%s(%a)"
-       expr0 o
-       c
-       (sep_list comma expr) es
   | EFunctionCall (c, es) ->
      fprintf out "%s(%a)"
        c
        (sep_list comma expr) es
   | EArrayGet (ea, ei) ->
      fprintf out "%a[%a]"
-       expr0 ea
+       expr ea
        expr ei
-  | EArrayLength e ->
-     fprintf out "%a.length"
-       expr0 e
-  | EObjectAlloc id ->
-     fprintf out "new %s()"
-       id
   | e ->
      fprintf out "(%a)"
        expr e
-
-and expr1 out = function
-  | EArrayAlloc e ->
-     fprintf out "new int[%a]"
-       expr e
-  | e ->
-     expr0 out e
 
 and expr2 out = function
   | EUnOp (UOpNot, e) ->
@@ -148,22 +128,19 @@ let rec instr out = function
        expr e
 
 (** [typ out t] prints the type [t] on the output channel [out]. *)
-let typ out = function
+let rec typ out = function
   | TypInt ->
      fprintf out "i32"
   | TypBool ->
-     fprintf out "boolean"
-  | TypIntArray ->
-     fprintf out "int[]"
-  | Typ id ->
-     fprintf out "%s"
-       id
+     fprintf out "bool"
+  | TypArray (t,i) ->
+     fprintf out "%a[%ld]" typ t i
 
 (** [typ out (x, t)] prints the type [t] and the associated variable [x] on the output channel [out]. *)
 let binding out (x, t) =
-  fprintf out "%a %s"
-    typ t
-    x
+  fprintf out "let %s : %a "
+   x
+   typ t
 
 (** [functio out (name, m)] prints the method [name] with type [MJ.functio m] on the output channel [out]. *)
 let functio out (name, m) =
