@@ -5,7 +5,7 @@ set -o pipefail
 #set -o xtrace
 
 SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-MINIJAVA=${SCRIPT_DIR}/../mini-java
+MINIRUST=${SCRIPT_DIR}/../mini-rust
 BUILD_DIR=
 BAD_PARSING_DIR=${SCRIPT_DIR}/bad_syntax
 BAD_TYPECHECKING_DIR=${SCRIPT_DIR}/bad_typechecking
@@ -46,7 +46,7 @@ END
 function create_tmp_dir() {
     until [ -n "${BUILD_DIR}" -a ! -d "${BUILD_DIR}" ]
     do
-        BUILD_DIR="/tmp/minijava_tests.${RANDOM}${RANDOM}${RANDOM}"
+        BUILD_DIR="/tmp/minirust_tests.${RANDOM}${RANDOM}${RANDOM}"
     done
     mkdir -p -m 0700 ${BUILD_DIR}  || { echo "FATAL: Failed to create temp dir '${BUILD_DIR}': $?"; exit 1; }
     cp -r ${GOOD_DIR} ${BUILD_DIR} || { echo "FATAL: Failed to create temp dir 'good': $?"; exit 1; }
@@ -104,7 +104,7 @@ function test_common() {
     local total=0
     local ok=0
     pushd "${1}" > /dev/null
-    for file in *.java
+    for file in *.rs
     do
         ${2} "${file}" &> /dev/null
         if [ $? -eq ${3} ]
@@ -128,18 +128,18 @@ function test_common() {
 
 function test_parsing() {
     title "TEST PARSING"
-    test_common ${BAD_PARSING_DIR} "${MINIJAVA} --stop-at-parsing" 1
-    test_common ${GOOD_DIR} "${MINIJAVA} --stop-at-parsing" 0
+    test_common ${BAD_PARSING_DIR} "${MINIRUST} --stop-at-parsing" 1
+    test_common ${GOOD_DIR} "${MINIRUST} --stop-at-parsing" 0
 }
 
 function test_typechecking() {
     title "TEST TYPECHECKING"
-    test_common ${BAD_TYPECHECKING_DIR} "${MINIJAVA} --stop-at-typechecking" 1
-    test_common ${GOOD_DIR} "${MINIJAVA} --stop-at-typechecking" 0
+    test_common ${BAD_TYPECHECKING_DIR} "${MINIRUST} --stop-at-typechecking" 1
+    test_common ${GOOD_DIR} "${MINIRUST} --stop-at-typechecking" 0
 }
 
 function diff_runtime() {
-    diff <(${MINIJAVA} --tgc-path=${SCRIPT_DIR}/../tgc ${1} && ./${1/.java/}) <(javac ${1} && java ${1/.java/})
+    diff <(${MINIRUST} ${1} && ./${1/.rs/}) <(rustc ${1} && ./${1/.rs/})
 }
 
 function test_runtime() {

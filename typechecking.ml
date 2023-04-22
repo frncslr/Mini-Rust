@@ -44,7 +44,7 @@ let mlookup : identifier -> function_env -> function_type = lookup "function"
 (** [compatible t1 t2] returns true iff the type [t1] is compatible with type [t2]. *)
 let rec compatible (typ1 : typ) (typ2 : typ) : bool =
   match typ1, typ2 with
-  | TypInt, TypInt
+  | TypInt, TypInt -> true
   | TypBool, TypBool -> true
   | TypArray (t1,i1), TypArray (t2,i2) -> compatible t1 t2 && i1=i2
   | _, _ -> false
@@ -52,14 +52,14 @@ let rec compatible (typ1 : typ) (typ2 : typ) : bool =
 (** [type_to_string t] converts the type [t] into a string representation. *)
 let rec type_to_string : typ -> string = function
   | TypInt -> "i32"
-  | TypBool -> "boolean"
+  | TypBool -> "bool"
   | TypArray (t,i) -> Printf.sprintf "[%s,%ld]" (type_to_string t) i
 
-(** [typecheck_call fenv venv vinit o callee es] checks, using the environments [fenv] and [venv],
+(** [typecheck_functioncall fenv venv vinit o callee es] checks, using the environments [fenv] and [venv],
     the set of initialized variables [vinit], that
      * the expression [o] is an object of type [t],
      * the parameters [es] are compatibles with the types of the formal parameters.
-    If [typecheck_call] succeeds, the return type of [callee] is returned. *)
+    If [typecheck_functioncall] succeeds, the return type of [callee] is returned. *)
 let rec typecheck_functioncall (fenv : function_env) (venv : variable_env) (vinit : S.t)
     (callee : identifier)
     (expressions : expression list) : typ =
@@ -180,8 +180,8 @@ let rec typecheck_instruction (fenv : function_env) (venv : variable_env) (vinit
     typecheck_instruction fenv venv vinit ibody
 
   | ISyso e ->
-    (** No typechecking needed as we print '%p', ie a 'void*' *)
-     vinit
+    typecheck_expression fenv venv vinit e;
+    vinit
 
 (** [occurences x bindings] returns the elements in [bindings] that have [x] has identifier. *)
 let occurrences (x : string) (bindings : (identifier * 'a) list) : identifier list =

@@ -45,6 +45,13 @@ The default C compiler is `cc`. if you want to use another compiler, you should 
 ./mini-rust --c-compiler clang file.rs
 ```
 
+
+## Differences with MiniJava
+
+Putting aside language level differences (like oriented object vs imperative programming), I've personally decided to change how some concepts are implemented in MiniRust compared to MiniJava. Those changes include : 
+- no more typechecking of what is displayed
+- booleans can be displayed (after being casted to integer)
+
 ## Limitations
 
 Here is a list of what is implemented : 
@@ -59,3 +66,6 @@ However, I was not able to fully implement some functionalities :
 - ownership principle with mut variables
 - references and mutable references
 
+__IMPORTANT__ : As the `mut` keyword and the ownership principle have not been implemented yet, all variables are by default mutable when declared only with `let ...`.
+
+__This can lead to slight differences between the output of MiniRust compared to the official Rust (thus explainig why some tests fail, but in fact all of them pass).__
