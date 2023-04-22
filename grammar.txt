@@ -2,14 +2,13 @@ Program ::= MainFunction FunctionDeclaration* 'eof'
 
 MainFunction ::= 'fn' 'main' '(' ')' '{' Statement '}'
 
-VarDeclaration ::= 'let' 'mut' Identifier ':' Type ';'
+VarDeclaration ::= 'let' Identifier ':' Type ';'
 
 MethodDeclaration ::= 'fn' Identifier '(' ( Identifier ':' Type ( ',' Identifier ':' Type )* )? ')' '->' Type '{' VarDeclaration* Statement* 'return' Expression ';' '}'
 
-Type ::= '[' 'i32' ',' 'i32' ']'
-        | 'boolean'
+Type ::= '[' Type ';' 'i32' ']'
+        | 'bool'
         | 'i32'
-        |  Identifier
 
 Statement ::= '{' Statement* '}'
         | 'if' '(' Expression ')' Statement 'else' Statement
@@ -20,14 +19,10 @@ Statement ::= '{' Statement* '}'
 
 Expression ::= Expression ( '&&' | '<' | '+' | '-' | '*' ) Expression
         | Expression '[' Expression ']'
-        | Expression '.' Identifier '(' ( Expression ( ',' Expression )* )? ')'
         | Integer
         | 'true'
         | 'false'
         | Identifier
-        | 'self'
-        | 'new' 'int' '[' Expression ']'
-        | 'new' Identifier '(' ')'
         | '!' Expression
         | '(' Expression ')'
 

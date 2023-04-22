@@ -2,22 +2,6 @@ open Printf
 open Print
 open MJ
 
-
-(** [struct_array_name] is the name of the structure that holds an array and its length:
-    class array {
-          int* array;
-          int length;
-    };
-    But [array] could be the name of a class and in this case, we have to create a new name. *)
-let struct_array_name = ref ""
-
-(** [name1] is a fresh name, different from all other variables in the MiniJava program. *)
-let name1 = ref ""
-
-(** [name2] is a fresh name, different from all other variables in the MiniJava program,
-    and different from [name1]. *)
-let name2 = ref ""
-
 let indentation = 2
 
 
@@ -66,20 +50,19 @@ let cast
     : unit =
   fprintf out "(%a)" type2c typ
 
-(** [var2c m class_info v] transpiles the variable [v] in the context of [class_info] and method [m]
-    to C on the output channel [out].
-    We must distinguish between an attribute and a local variable or a parameter. *)
+(** [var2c f out v] transpiles the variable [v] in the context of function [f]
+    to C on the output channel [out]. *)
 let var2c
-      (method_name : string)
+      (function_name : string)
       out
       (v : string)
     : unit =
   fprintf out "%s" v
 
-(** [expr2c m class_info out e] transpiles the expression [e], in the context of method [m] and [class_info],
+(** [expr2c f out e] transpiles the expression [e], in the context of function [f],
     to C on the output channel [out]. *)
 let expr2c
-      (method_name : string)
+      (function_name : string)
       out
       (expr : MJ.expression)
     : unit =
@@ -89,7 +72,7 @@ let expr2c
        fprintf out "%a" constant2c const
 
     | EGetVar v ->
-       var2c method_name out v
+       var2c function_name out v
        
     | EFunctionCall (callee, args) ->
       fprintf out "%s(%a)"
@@ -113,10 +96,10 @@ let expr2c
   in
   expr2c out expr
 
-(** [instr2c m class_info out ins] transpiles the instruction [ins], in the context of method [m] and [class_info],
+(** [instr2c f out ins] transpiles the instruction [ins], in the context of function [f],
     to C on the output channel [out]. *)
 let instr2c
-      (method_name : string)
+      (function_name : string)
       out
       (ins : MJ.instruction)
     : unit =
@@ -124,22 +107,22 @@ let instr2c
     match ins with
     | ISetVar (x, e) ->
        fprintf out "%a = %a;"
-         (var2c method_name) x
-         (expr2c method_name) e
+         (var2c function_name) x
+         (expr2c function_name) e
 
     | IArraySet (id, ei, ev) ->
       failwith "IArraySet : not implemented yet"
 
     | IIf (c, i1, i2) ->
        fprintf out "if (%a) %a%telse %a"
-         (expr2c method_name) c
+         (expr2c function_name) c
          instr2c i1
          nl
          instr2c i2
 
     | IWhile (c, i) ->
        fprintf out "while (%a) %a"
-         (expr2c method_name) c
+         (expr2c function_name) c
          instr2c i
 
     | IBlock is ->
@@ -148,8 +131,8 @@ let instr2c
          nl
 
     | ISyso e ->
-       fprintf out "printf(\"%%d\\n\", %a);"
-         (expr2c method_name) e
+       fprintf out "printf(\"%%p\\n\", %a);"
+         (expr2c function_name) e
   in
   instr2c out ins
 
@@ -162,87 +145,51 @@ let decl2c
     type2c t
     id
 
-(** [method_declaration2c out (name, c)] transpiles all the declarations of the methods of the class [name] with type [c]
+(** [function_definition2c out (name, c)] transpiles all the definitions of the function [name]
     to C on the output channel [out]. *)
-let method_declaration2c
-      out
-      ((method_name, m) : string * MJ.functio)
-    : unit =
-  fprintf out "void* %s(%a);"
-    method_name
-    (prec_list comma decl2c)
-    m.formals
-  
-
-(** [method_definition2c out (name, c)] transpiles all the definitions of the methods of the class [name] with type [c]
-    to C on the output channel [out]. *)
-let method_definition2c out ((method_name, m) : string * MJ.functio) =
+let function_definition2c out ((function_name, f) : string * MJ.functio) =
   let return2c out e =
     fprintf out "return (void*)(%a);"
-      (expr2c method_name) e
+      (expr2c function_name) e
   in
   fprintf out "void* %s(%a) {%a%a%a\n}"
-    method_name
-    (prec_list comma decl2c) m.formals
+  function_name
+    (prec_list comma decl2c) f.formals
     (term_list semicolon (indent indentation decl2c))
-    m.locals
-    (list (indent indentation (instr2c method_name))) m.body
-    (indent indentation return2c) m.return
+    f.locals
+    (list (indent indentation (instr2c function_name))) f.body
+    (indent indentation return2c) f.return
 
 
 (** [all_variables p] returns the list of all the variables of program [p]. *)
 let all_variables (p : MJ.program) : string list =
-  let variables_from_method (m : MJ.functio) : string list =
-    List.(map fst m.formals
-          @ map fst m.locals)
+  let variables_from_function (f : MJ.functio) : string list =
+    List.(map fst f.formals
+          @ map fst f.locals)
   in
     List.(map
             (fun (_, functio) ->
-              variables_from_method functio)
+              variables_from_function functio)
             p.defs
           |> flatten)
 
 let program2c out (p : MJ.program) : unit =
-  let all_func_names =
-    List.map fst p.defs
-  in
-  let rec variant s l =
-    if List.mem s l then
-      variant (s ^ "_") l
-    else
-      s
-  in
-  struct_array_name := variant "array" all_func_names;
-  let all_variables = all_variables p in
-  name1 := variant "tmp1" all_variables;
-  name2 := variant "tmp2" (!name1 :: all_variables);
   fprintf out
     "#include <stdio.h>\n\
      #include <stdlib.h>\n\
      #pragma GCC diagnostic ignored \"-Wpointer-to-int-cast\"\n\
-     #pragma GCC diagnostic ignored \"-Wint-to-pointer-cast\"\n\
-     struct %s { int* array; int length; };\n\
-     %a\
+     #pragma GCC diagnostic ignored \"-Wint-to-pointer-cast\"\n\n\
      %a\
      int main(int argc, char *argv[]) {\
      %a\n\
      %a\n\
      }\n"
-    !struct_array_name
-
-    (term_list nl method_declaration2c)
-    p.defs
-
-    (term_list nl method_definition2c)
+    (term_list nl function_definition2c)
     p.defs
 
     (* MAIN  *)
 
-    (* (indent indentation print_string) "tgc_start(&gc, &argc);" *)
-
     (indent indentation (instr2c "main"))
     p.main
-
-    (* (indent indentation print_string) "tgc_stop(&gc);" *)
 
     (indent indentation print_string) "return 0;"

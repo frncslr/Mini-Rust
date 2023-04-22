@@ -1,4 +1,4 @@
-(** Typechecks the abstract syntax tree of the MiniJava program and raise
+(** Typechecks the abstract syntax tree of the MiniRust program and raise
     an [Error] exception if a typechecking error occurs. *)
 
 (** This [Error] exception is raised when a typechecking error occurs. *)

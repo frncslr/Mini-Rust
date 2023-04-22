@@ -1,4 +1,4 @@
-(** The abstract syntax tree for MiniJava with position informations
+(** The abstract syntax tree for Mini-Rust with position informations
     to point the user to the location of the error in the source file
     when a syntax or typechecking error is encountered.
  *)
@@ -15,7 +15,7 @@ and raw_expression =
   | EGetVar of identifier (** Get the value of a variable. *)
   | EUnOp of unop * expression (** An unary operator. *)
   | EBinOp of binop * expression * expression (** [EBinOp (op, e1, e2)] represents the expression [e1 op e2]. *)
-  | EFunctionCall of identifier * expression list (** [EMethodCall (o, id, [p1, ..., pn])] represents the call [o.id(p1, ..., pn)]. *)
+  | EFunctionCall of identifier * expression list (** [EFunctionCall (id, [p1, ..., pn])] represents the call [id(p1, ..., pn)]. *)
   | EArrayGet of expression * expression (** [EArrayGet (e1, e2)] represents the expression [e1[e2]]. *)
 
 and constant =
@@ -42,18 +42,18 @@ and instruction =
 and typ =
   | TypInt (** Type [int]. *)
   | TypBool (** Type [bool]. *)
-  | TypArray of typ * int32 (** Type [typ[]]. *)
+  | TypArray of typ * int32 (** Type [typ[]], an array with an int32 size . *)
 
 and functio = {
-  formals: (identifier * typ) list; (** The names of the parameters of the method with their types. *)
-  result: typ; (** Result type of the method. *)
-  locals: (identifier * typ) list; (** The names of the local variables with their types (declared at the beginning of the method). *)
-  body: instruction list; (** The list of instructions of the method. *)
+  formals: (identifier * typ) list; (** The names of the parameters of the function with their types. *)
+  result: typ; (** Result type of the function. *)
+  locals: (identifier * typ) list; (** The names of the local variables with their types (declared at the beginning of the function). *)
+  body: instruction list; (** The list of instructions of the function. *)
   return: expression (** The return expression. *)
 }
 
 and program = {
   defs: (identifier * functio) list; (** The names and definitions of the other functions. *)
-  main: instruction (** In MiniRust the main has only one instruction (but you can use
+  main: instruction (** In MiniRust the main has only one INSTRUCTION (but you can use
                         a block if you want more than one). *)
 }

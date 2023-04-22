@@ -33,7 +33,6 @@
 program:
 | m = main_function d = defs EOF
    {
-      let i=m in
       {
          defs = d;
          main = m;

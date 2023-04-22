@@ -224,9 +224,9 @@ let print_declaration_list out l =
   fprintf out "%a"
     (Print.sep_list Print.space print_declaration) l
 
-(** [print_method prefix out m] prints the method [m] on the output channel [out].
-    [prefix] is the string already printed just before [m]. *)
-let print_method prefix out m =
+(** [print_function prefix out f] prints the function [f] on the output channel [out].
+    [prefix] is the string already printed just before [f]. *)
+let print_function prefix out m =
   fprintf out "formals %a\n%s%sresult %a\n%s%slocals %a\n%s%sbody\n%a%s%s%sreturn\n%a"
     print_declaration_list m.formals
     prefix
@@ -243,32 +243,28 @@ let print_method prefix out m =
     branch_end
     (print_expression_list (prefix ^ " ")) [m.return]
 
-(** [print_identifier_method_list prefix out l] prints the list of methods with their names [l] on the output channel [out].
+(** [print_identifier_function_list prefix out l] prints the list of functions with their names [l] on the output channel [out].
     [prefix] is the current prefix string, but currently the position in the output channel [out] is
     at the beginning of a line (the prefix string is not already printed). *)
-let print_identifier_method_list prefix out l =
-  let print_identifier_method prefix out (id, m) =
+let print_identifier_function_list prefix out l =
+  let print_identifier_function prefix out (id, m) =
     let prefix' = prefix ^ String.make indentation ' ' in
     fprintf out "%a\n%s%s%a"
       print_identifier id
       prefix'
       branch
-      (print_method prefix') m
+      (print_function prefix') m
   in
-  print_list print_identifier_method prefix out l
+  print_list print_identifier_function prefix out l
 
 let print out p show_loc =
   show_location := show_loc;
   let prefix = String.make indentation ' ' in
-  fprintf out "program\n%s%s\n%s%sdefs\n%a%s%s%s\n%s%smain\n%a\n"
+  fprintf out "program\n%s%sdefs\n%a%s%s%smain\n%a\n"
     prefix
     branch
-    prefix
-    branch
-    (print_identifier_method_list (prefix ^ pipe)) p.defs
+    (print_identifier_function_list (prefix ^ pipe)) p.defs
     (if p.defs = [] then "" else "\n")
-    prefix
-    branch
     prefix
     branch_end
     (print_instruction_list (prefix ^ " ")) [p.main]

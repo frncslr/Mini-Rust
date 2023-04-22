@@ -142,27 +142,16 @@ let binding out (x, t) =
    x
    typ t
 
-(** [functio out (name, m)] prints the method [name] with type [MJ.functio m] on the output channel [out]. *)
-let functio out (name, m) =
+(** [functio out (name, f)] prints the function [name] with type [MJ.functio f] on the output channel [out]. *)
+let functio out (name, f) =
   fprintf out "fn %s(%a) -> %a {%a%a%t%t}"
     name
-    (sep_list comma binding) m.formals
-    typ m.result
-    (term_list semicolon (indent indentation binding)) m.locals
-    (list (indent indentation instr)) m.body
-    (indent_t indentation (fun out -> fprintf out "return %a;" expr m.return))
+    (sep_list comma binding) f.formals
+    typ f.result
+    (term_list semicolon (indent indentation binding)) f.locals
+    (list (indent indentation instr)) f.body
+    (indent_t indentation (fun out -> fprintf out "return %a;" expr f.return))
     nl
-
-(** [clas out (name, c)] prints the clas [name] with type [MJ.clas c] on the output channel [out]. *)
-(* let clas out (name, c) =
-  (match c.extends with
-   | None ->
-      fprintf out "class %s {%a%a%t}" name
-   | Some class_name ->
-      fprintf out "class %s extends %s {%a%a%t}" name class_name)
-    (term_list semicolon (indent indentation binding)) c.attributes
-    (list (indent indentation functio)) c.methods
-    nl *)
 
 let print_program out (p : MJ.program) : unit =
   fprintf out "%t%t %t%a"
