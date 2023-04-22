@@ -37,24 +37,19 @@ rule get_token = parse
   | ']'       { RBRACKET }
   | '{'       { LBRACE }
   | '}'       { RBRACE }
-  | '.'       { DOT }
   | '\"'      { QUOT }
   | ';'       { SEMICOLON }
   | ':'       { COLON }
   | '='       { ASSIGN }
   | ","       { COMMA }
-  | "&"       { ADDR }
   | "true"    { BOOL_CONST true }
   | "false"   { BOOL_CONST false }
   | "i32"     { INTEGER }
   | "bool"    { BOOLEAN }
   | "fn"      { FUNC }
   | "let"     { LET }
-  | "mut"     { MUT }
   | "main"    { MAIN }
   | "return"  { RETURN }
-  | "new"     { NEW }
-  | "self"    { SELF }
   | "println!"  { SYSO }
   | "!"       { NOT }
   | "if"    { IF }

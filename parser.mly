@@ -6,14 +6,13 @@
 %token <int32> INT_CONST
 %token <bool> BOOL_CONST
 %token INTEGER BOOLEAN
-%token LET MUT ADDR
+%token LET
 %token <string Location.t> IDENT
 %token FUNC MAIN RETURN
 %token PLUS MINUS TIMES NOT LT AND
 %token QUOT COMMA SEMICOLON COLON
 %token ASSIGN RET_TYPE
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
-%token SELF NEW DOT
 %token SYSO
 %token IF ELSE WHILE
 %token EOF
@@ -23,7 +22,7 @@
 %left PLUS MINUS
 %left TIMES
 %nonassoc NOT
-%nonassoc DOT LBRACKET
+%nonassoc LBRACKET
 
 %start program
 
@@ -146,5 +145,5 @@ typ:
    { TypInt }
 | BOOLEAN
    { TypBool }
-| LBRACKET t = typ MUT i=INT_CONST RBRACKET
+| LBRACKET t = typ SEMICOLON i=INT_CONST RBRACKET
    { TypArray (t,i) }

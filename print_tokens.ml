@@ -28,10 +28,6 @@ let print_token show_loc out = function
        fprintf out "IDENT %s%s%s" lquote (Location.content id) rquote
   | LET ->
      fprintf out "LET"
-  | MUT ->
-     fprintf out "MUT"
-  | ADDR ->
-     fprintf out "ADDR"
   | FUNC ->
      fprintf out "FUNC"
   | MAIN ->
@@ -74,12 +70,6 @@ let print_token show_loc out = function
      fprintf out "LBRACE"
   | RBRACE ->
      fprintf out "RBRACE"
-  | SELF ->
-     fprintf out "SELF"
-  | NEW ->
-     fprintf out "NEW"
-  | DOT ->
-     fprintf out "DOT"
   | SYSO ->
      fprintf out "SYSO"
   | IF ->
