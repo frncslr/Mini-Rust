@@ -77,7 +77,7 @@ let expr2c
     | EFunctionCall (callee, args) ->
       fprintf out "%s(%a)"
       callee
-      (prec_list comma expr2c) args
+      (sep_list comma expr2c) args
 
     | EArrayGet (ea, ei) ->
       fprintf out "%a[%a]"
@@ -131,7 +131,7 @@ let instr2c
          nl
 
     | ISyso e ->
-       fprintf out "printf(\"%%p\\n\", %a);"
+       fprintf out "printf(\"%%d\\n\", %a);"
          (expr2c function_name) e
   in
   instr2c out ins
@@ -149,12 +149,13 @@ let decl2c
     to C on the output channel [out]. *)
 let function_definition2c out ((function_name, f) : string * MJ.functio) =
   let return2c out e =
-    fprintf out "return (void*)(%a);"
+    fprintf out "return (%a);"
       (expr2c function_name) e
   in
-  fprintf out "void* %s(%a) {%a%a%a\n}"
-  function_name
-    (prec_list comma decl2c) f.formals
+  fprintf out "%a %s(%a) {%a%a%a\n}"
+    type2c f.result
+    function_name
+    (sep_list comma decl2c) f.formals
     (term_list semicolon (indent indentation decl2c))
     f.locals
     (list (indent indentation (instr2c function_name))) f.body
